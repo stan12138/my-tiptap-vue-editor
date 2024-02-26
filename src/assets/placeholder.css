@@ -1,0 +1,33 @@
+.ProseMirror .is-empty::before {
+    /* text-black/40 dark:text-white/40 float-left h-0 pointer-events-none w-full */
+    color: rgba(0, 0, 0, 0.4); /* Assuming text-black/40 */
+    float: left;
+    height: 0;
+    pointer-events: none;
+    width: 100%;
+  }
+  
+  .ProseMirror.ProseMirror-focused > p.has-focus.is-empty::before {
+    content: 'Type  /  to browse options';
+  }
+  
+  .ProseMirror.ProseMirror-focused > [data-type='columns'] > [data-type='column'] > p.is-empty.has-focus::before {
+    content: 'Type  /  to browse options';
+  }
+  
+  .ProseMirror > .is-editor-empty::before {
+    content: 'Click here to start writing …';
+  }
+  
+  .ProseMirror blockquote .is-empty:not(.is-editor-empty):first-child:last-child::before {
+    content: 'Enter a quote';
+  }
+  
+  .ProseMirror blockquote + figcaption.is-empty:not(.is-editor-empty)::before {
+    content: 'Author';
+  }
+  
+  .ProseMirror [data-placeholder][data-suggestion]::before,
+  .ProseMirror [data-placeholder][data-suggestion] *::before {
+    content: none !important;
+  }
