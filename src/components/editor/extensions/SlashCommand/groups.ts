@@ -113,22 +113,20 @@ export const GROUPS = [
           editor.chain().focus().setImageUpload().run()
         },
       },
-    //   {
-    //     name: 'columns',
-    //     label: 'Columns',
-    //     iconName: markRaw(Columns),
-    //     description: 'Add two column content',
-    //     aliases: ['cols'],
-    //     shouldBeHidden: editor => editor.isActive('columns'),
-    //     action: editor => {
-    //       editor
-    //         .chain()
-    //         .focus()
-    //         .setColumns()
-    //         .focus(editor.state.selection.head - 1)
-    //         .run()
-    //     },
-    //   },
+      {
+        name: 'columns',
+        label: 'Columns',
+        iconName: markRaw(Columns),
+        description: 'Add two column content',
+        aliases: ['cols'],
+        action: editor => {
+          editor
+            .chain()
+            .focus()
+            .setColumns()
+            .run()
+        },
+      },
       {
         name: 'horizontalRule',
         label: 'Horizontal Rule',
@@ -139,17 +137,6 @@ export const GROUPS = [
           editor.chain().focus().setHorizontalRule().run()
         },
       },
-    //   {
-    //     name: 'toc',
-    //     label: 'Table of Contents',
-    //     iconName: markRaw(Book2),
-    //     aliases: ['outline'],
-    //     description: 'Insert a table of contents',
-    //     shouldBeHidden: editor => editor.isActive('columns'),
-    //     action: editor => {
-    //       editor.chain().focus().insertTableOfContent().run()
-    //     },
-    //   }
     ],
   },
 ]

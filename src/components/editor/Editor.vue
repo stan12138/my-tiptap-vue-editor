@@ -3,8 +3,10 @@
         <TextMenu :editor="editor"></TextMenu>
         <LinkMenu :editor="editor"></LinkMenu>
         <ImageBlockMenu :editor="editor"></ImageBlockMenu>
+        <ColumnsMenu :editor="editor"></ColumnsMenu>
         <editor-content :editor="editor" style="min-height: 500px;"/>
     </div>
+
 </template>
 
 <script setup lang="ts">
@@ -28,6 +30,11 @@ import Table from '@tiptap/extension-table'
 import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
+import FileHandler from '@tiptap-pro/extension-file-handler'
+import Emoji, { gitHubEmojis } from '@tiptap-pro/extension-emoji'
+import Paragraph from '@tiptap/extension-paragraph'
+import { Mathematics } from '@tiptap-pro/extension-mathematics'  // latex
+import 'katex/dist/katex.min.css'  // latex
 import {common, createLowlight} from 'lowlight'
 
 import LiteralTab from './extensions/LiteralTab/LiteralTab.ts'
@@ -35,18 +42,30 @@ import FontSize from './extensions/FontSize/FontSize.ts'
 import SlashCommand from './extensions/SlashCommand/SlashCommand.ts'
 import ImageUpload from './extensions/ImageUpload/ImageUpload.ts'
 import ImageBlock from './extensions/ImageBlock/ImageBlock.ts'
+import suggestion from './extensions/EmojiSuggestion/EmojiSuggestion.ts'
+import Columns from "./extensions/MultiColumn/Columns.ts"
+import Column from "./extensions/MultiColumn/Column.ts"
+import Document from "./extensions/Document/Document.ts"
 
 import TextMenu from './components/TextMenu/TextMenu.vue'
 import LinkMenu from './components/LinkMenu/LinkMenu.vue'
 import ImageBlockMenu from './components/ImageBlockMenu/ImageBlockMenu.vue'
+import ColumnsMenu from './components/ColumnsMenu/ColumnsMenu.vue'
+
+import { Request } from '../../plugins/request.ts'
 
 const lowlight = createLowlight(common)
 
+const d = 'I’ve seen things you people wouldn’t believe. Attack ships on fire off the shoulder of Orion. I watched C-beams glitter in the dark near the Tannhauser gate. All those moments will be lost in time... like tears in rain...Time to die.'
+
 const editor = useEditor({
-    content: 'I’ve seen things you people wouldn’t believe. Attack ships on fire off the shoulder of Orion. I watched C-beams glitter in the dark near the Tannhauser gate. All those moments will be lost in time... like tears in rain...Time to die.',
+    // content: '',
     extensions: [
+        Document,   // fuck!!!! columns自定义扩展需要
         StarterKit.configure({
             codeBlock: false,
+            paragraph: false,
+            document: false,
         }),
         // DragHandle,
         // SlashCommand,
@@ -76,7 +95,13 @@ const editor = useEditor({
         Placeholder.configure({   // 支持占位符样式
             includeChildren: true,
             showOnlyCurrent: false,
-            placeholder: () => '',
+            placeholder: ({ node }) => {
+            if (node.type.name === 'heading') {
+              return 'What’s the title?'
+            }
+
+            return ''
+          },
         }),
         SlashCommand,   // slash命令
         Focus,   // 用于提供has-focus css class，配合placeholder实现placeholder的设置
@@ -87,7 +112,33 @@ const editor = useEditor({
         TableHeader,
         TableRow,   // <-- 支持表格
         ImageUpload, // 图片上传
-        ImageBlock,
+        ImageBlock,  // 图片展示
+        FileHandler.configure({    // 支持拖拽，粘贴图片到编辑器
+            allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+            onDrop: (currentEditor, files, pos) => {
+                files.forEach(file => {
+                    Request.singleFilePost("http://127.0.0.1:10007/api/picture/upload_editor_picture", file as File).then((res: any) => {
+                        currentEditor.chain().setImageBlock({ src: "http://127.0.0.1:10007" + res.data.url }).focus().run()
+                    })
+                })
+            },
+            onPaste: (currentEditor, files) => {
+                files.forEach(file => {
+                    Request.singleFilePost("http://127.0.0.1:10007/api/picture/upload_editor_picture", file as File).then((res: any) => {
+                        currentEditor.chain().setImageBlock({ src: "http://127.0.0.1:10007" + res.data.url }).focus().run()
+                    })
+                })
+            },
+        }),
+        Emoji.configure({       // 支持emoji
+          emojis: gitHubEmojis,
+          enableEmoticons: true,
+          suggestion,
+        }),
+        Columns,  // 支持columns
+        Column,  // 支持columns
+        Paragraph,  // 支持columns，paragraph是一个很基础的extension
+        Mathematics, // 支持latex
     ],
     editable: true,
     editorProps: {
@@ -100,6 +151,7 @@ const editor = useEditor({
     },
     autofocus: true,
 })
+
 
 </script>
 
@@ -248,6 +300,7 @@ blockquote {
 </style>
 
 <style>
+/* imageblock样式 */
 .ProseMirror .node-imageBlock img {
     overflow: hidden;
     border-radius: .75rem;
@@ -266,4 +319,117 @@ blockquote {
     max-width: 100%
 }
 
+</style>
+
+<style>
+/* columns样式 */
+.ProseMirror [data-type=columns] {
+    /* margin-top: 3.5rem;
+    margin-bottom: 3rem; */
+    display: grid;
+    gap: 1rem
+}
+
+.ProseMirror [data-type=columns].layout-sidebar-left {
+    grid-template-columns: 40fr 60fr;
+}
+
+.ProseMirror [data-type=columns].layout-sidebar-right {
+    grid-template-columns: 60fr 40fr
+}
+
+.ProseMirror [data-type=columns].layout-two-column {
+    grid-template-columns: 1fr 1fr
+}
+
+.ProseMirror [data-type=column] {
+    overflow: auto
+}
+
+.ProseMirror [data-type=columns].has-focus [data-type=column],.ProseMirror [data-type=columns]:hover [data-type=column] {
+    --tw-border-opacity: 1;
+    border-color: rgb(212 212 212/var(--tw-border-opacity))
+}
+
+:is(.dark .ProseMirror [data-type=columns].has-focus [data-type=column]),:is(.dark .ProseMirror [data-type=columns]:hover [data-type=column]) {
+    --tw-border-opacity: 1;
+    border-color: rgb(64 64 64/var(--tw-border-opacity))
+}
+
+.ProseMirror [data-type=columns] [data-type=column].has-focus {
+    --tw-border-opacity: 1;
+    border-color: rgb(163 163 163/var(--tw-border-opacity))
+}
+
+:is(.dark .ProseMirror [data-type=columns] [data-type=column].has-focus) {
+    --tw-border-opacity: 1;
+    border-color: rgb(82 82 82/var(--tw-border-opacity))
+}
+
+.ProseMirror [data-type=column] {
+    border-radius: .25rem;
+    border: 2px dotted transparent;
+    padding: .25rem;
+    transition: border .16s cubic-bezier(.45,.05,.55,.95)
+}
+
+.ProseMirror [data-type=column]:hover {
+    --tw-border-opacity: 1;
+    border-color: rgb(245 245 245/var(--tw-border-opacity))
+}
+
+:is(.dark .ProseMirror [data-type=column]:hover) {
+    --tw-border-opacity: 1;
+    border-color: rgb(23 23 23/var(--tw-border-opacity))
+}
+
+.ProseMirror [data-type=column].has-focus,.ProseMirror [data-type=column]:has(.is-active) {
+    --tw-border-opacity: 1;
+    border-color: rgb(245 245 245/var(--tw-border-opacity))
+}
+
+:is(.dark .ProseMirror [data-type=column].has-focus),:is(.dark .ProseMirror [data-type=column]:has(.is-active)) {
+    --tw-border-opacity: 1;
+    border-color: rgb(23 23 23/var(--tw-border-opacity))
+}
+</style>
+
+<style lang="scss">
+/* 首行placeholder样式 */
+.tiptap .is-empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #ced4da;
+  pointer-events: none;
+  height: 0;
+}
+</style>
+
+
+<style lang="scss">
+/* 数学公式样式 */
+.ProseMirror {
+  .Tiptap-mathematics-editor {
+    background: #202020;
+    color: #fff;
+    font-family: monospace;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .Tiptap-mathematics-render {
+    cursor: pointer;
+    padding: 0 0.25rem;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #eee;
+    }
+  }
+
+  .Tiptap-mathematics-editor,
+  .Tiptap-mathematics-render {
+    border-radius: 0.25rem;
+    display: inline-block;
+  }
+}
 </style>

@@ -35,7 +35,7 @@ export const ImageUpload = Node.create({
         setImageUpload:
           () =>
           ({ commands }) =>
-            commands.insertContent(`<div data-type="${this.name}"></div>`),
+            commands.insertContent(`<div data-type="${this.name}"></div><p></p>`),
       }
     },
   

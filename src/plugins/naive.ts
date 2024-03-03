@@ -5,7 +5,8 @@ import {
     NDataTable, NModal, NForm, NFormItem, NMenu, NAvatar,
     NDropdown, NImage, NUpload, NInputGroup, NSpin, NRadio,
     NCheckbox, NDatePicker, NProgress, NColorPicker, NPopover,
-    NSwitch, NScrollbar, NFlex, NUploadDragger, NText, NSlider
+    NSwitch, NScrollbar, NFlex, NUploadDragger, NText, NSlider,
+    NTooltip
 } from "naive-ui";
 
 const naive = create({
@@ -16,7 +17,8 @@ const naive = create({
         NDataTable, NModal, NForm, NFormItem, NMenu, NAvatar,
         NDropdown, NImage, NUpload, NInputGroup, NSpin, NRadio,
         NCheckbox, NDatePicker, NProgress, NColorPicker, NPopover,
-        NSwitch, NScrollbar, NFlex, NUploadDragger, NText, NSlider
+        NSwitch, NScrollbar, NFlex, NUploadDragger, NText, NSlider,
+        NTooltip
     ]
 })
 
