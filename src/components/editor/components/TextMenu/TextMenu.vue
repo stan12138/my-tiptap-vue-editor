@@ -5,36 +5,48 @@
         <FontPicker :editor="props.editor"></FontPicker>
         <FontSizePicker :editor="props.editor"></FontSizePicker>
         <n-divider vertical style="margin: 0;"></n-divider>
-        <n-button strong secondary style="vertical-align: middle; padding-left: 6px; padding-right: 6px; margin-left: 1px; margin-right: 1px;" :class="{'is-active': props.editor.isActive('bold')}" @click="props.editor.chain().focus().toggleBold().run()">
-            <template #icon>
-                <n-icon><Bold /></n-icon>
-            </template>
-        </n-button>
-        <n-button strong secondary style="vertical-align: middle; padding-left: 6px; padding-right: 6px; margin-left: 1px; margin-right: 1px;" :class="{'is-active': props.editor.isActive('italic')}" @click="props.editor.chain().focus().toggleItalic().run()">
-            <template #icon>
-                <n-icon><Italic /></n-icon>
-            </template>
-        </n-button>
-        <n-button strong secondary style="vertical-align: middle; padding-left: 6px; padding-right: 6px; margin-left: 1px; margin-right: 1px;" :class="{'is-active': props.editor.isActive('underline')}" @click="props.editor.chain().focus().toggleUnderline().run()">
-            <template #icon>
-                <n-icon><Underline /></n-icon>
-            </template>
-        </n-button>
-        <n-button strong secondary style="vertical-align: middle; padding-left: 6px; padding-right: 6px; margin-left: 1px; margin-right: 1px;" :class="{'is-active': props.editor.isActive('strike')}" @click="props.editor.chain().focus().toggleStrike().run()">
-            <template #icon>
-                <n-icon><Strikethrough /></n-icon>
-            </template>
-        </n-button>
-        <n-button strong secondary style="vertical-align: middle; padding-left: 6px; padding-right: 6px; margin-left: 1px; margin-right: 1px;" :class="{'is-active': props.editor.isActive('code')}" @click="props.editor.chain().focus().toggleCode().run()">
-            <template #icon>
-                <n-icon><Code/></n-icon>
-            </template>
-        </n-button>
-        <n-button strong secondary style="vertical-align: middle; padding-left: 6px; padding-right: 6px; margin-left: 1px; margin-right: 1px;" @click="props.editor.chain().focus().toggleCodeBlock().run()">
-            <template #icon>
-                <n-icon><CodeSlash/></n-icon>
-            </template>
-        </n-button>
+        <ToolTipWrapper tip="Blod">
+            <n-button strong secondary style="vertical-align: middle; padding-left: 6px; padding-right: 6px; margin-left: 1px; margin-right: 1px;" :class="{'is-active': props.editor.isActive('bold')}" @click="props.editor.chain().focus().toggleBold().run()">
+                <template #icon>
+                    <n-icon><Bold /></n-icon>
+                </template>
+            </n-button>
+        </ToolTipWrapper>
+        <ToolTipWrapper tip="Italic">
+            <n-button strong secondary style="vertical-align: middle; padding-left: 6px; padding-right: 6px; margin-left: 1px; margin-right: 1px;" :class="{'is-active': props.editor.isActive('italic')}" @click="props.editor.chain().focus().toggleItalic().run()">
+                <template #icon>
+                    <n-icon><Italic /></n-icon>
+                </template>
+            </n-button>
+        </ToolTipWrapper>
+        <ToolTipWrapper tip="Underline">
+            <n-button strong secondary style="vertical-align: middle; padding-left: 6px; padding-right: 6px; margin-left: 1px; margin-right: 1px;" :class="{'is-active': props.editor.isActive('underline')}" @click="props.editor.chain().focus().toggleUnderline().run()">
+                <template #icon>
+                    <n-icon><Underline /></n-icon>
+                </template>
+            </n-button>
+        </ToolTipWrapper>
+        <ToolTipWrapper tip="Strikethrough">
+            <n-button strong secondary style="vertical-align: middle; padding-left: 6px; padding-right: 6px; margin-left: 1px; margin-right: 1px;" :class="{'is-active': props.editor.isActive('strike')}" @click="props.editor.chain().focus().toggleStrike().run()">
+                <template #icon>
+                    <n-icon><Strikethrough /></n-icon>
+                </template>
+            </n-button>
+        </ToolTipWrapper>
+        <ToolTipWrapper tip="Code">
+            <n-button strong secondary style="vertical-align: middle; padding-left: 6px; padding-right: 6px; margin-left: 1px; margin-right: 1px;" :class="{'is-active': props.editor.isActive('code')}" @click="props.editor.chain().focus().toggleCode().run()">
+                <template #icon>
+                    <n-icon><Code/></n-icon>
+                </template>
+            </n-button>
+        </ToolTipWrapper>
+        <ToolTipWrapper tip="Code Block">
+            <n-button strong secondary style="vertical-align: middle; padding-left: 6px; padding-right: 6px; margin-left: 1px; margin-right: 1px;" @click="props.editor.chain().focus().toggleCodeBlock().run()">
+                <template #icon>
+                    <n-icon><CodeSlash/></n-icon>
+                </template>
+            </n-button>
+        </ToolTipWrapper>
         <AddLink :editor="props.editor"></AddLink>
         <HighlightButton :editor="props.editor"></HighlightButton>
         <FontColor :editor="props.editor"></FontColor>
@@ -52,6 +64,8 @@ import AddLink from './AddLink.vue'
 import HighlightButton from './HighlightButton.vue'
 import FontColor from './FontColor.vue'
 import MoreOptions from './MoreOptions.vue'
+
+import ToolTipWrapper from '../../../tooltipwrapper/ToolTipWrapper.vue'
 
 import editorStatus from '../../utils/editorStatus.ts'
 

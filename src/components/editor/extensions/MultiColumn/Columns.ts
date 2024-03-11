@@ -46,6 +46,9 @@ export const Columns = Node.create({
         (layout: ColumnLayout) =>
         ({ commands }) =>
           commands.updateAttributes('columns', { layout }),
+      deleteMyself:
+        () => 
+        ({ commands }) => console.log(commands, this)
     }
   },
 

@@ -1,12 +1,11 @@
 <template>
-    <div v-if="editor" style="min-height: 500px;">
-        <TextMenu :editor="editor"></TextMenu>
-        <LinkMenu :editor="editor"></LinkMenu>
-        <ImageBlockMenu :editor="editor"></ImageBlockMenu>
-        <ColumnsMenu :editor="editor"></ColumnsMenu>
-        <editor-content :editor="editor" style="min-height: 500px;"/>
+    <div style="min-height: 1500px;">
+        <TextMenu v-if="editor" :editor="editor"></TextMenu>
+        <LinkMenu v-if="editor" :editor="editor"></LinkMenu>
+        <ImageBlockMenu v-if="editor" :editor="editor"></ImageBlockMenu>
+        <ColumnsMenu v-if="editor" :editor="editor"></ColumnsMenu>
+        <editor-content v-if="editor" :editor="editor" style="min-height: 500px;"/>
     </div>
-
 </template>
 
 <script setup lang="ts">
@@ -46,6 +45,7 @@ import suggestion from './extensions/EmojiSuggestion/EmojiSuggestion.ts'
 import Columns from "./extensions/MultiColumn/Columns.ts"
 import Column from "./extensions/MultiColumn/Column.ts"
 import Document from "./extensions/Document/Document.ts"
+import DragHandle from './extensions/DragHandle/DragHandle.js'
 
 import TextMenu from './components/TextMenu/TextMenu.vue'
 import LinkMenu from './components/LinkMenu/LinkMenu.vue'
@@ -58,8 +58,12 @@ const lowlight = createLowlight(common)
 
 const d = 'I’ve seen things you people wouldn’t believe. Attack ships on fire off the shoulder of Orion. I watched C-beams glitter in the dark near the Tannhauser gate. All those moments will be lost in time... like tears in rain...Time to die.'
 
+const emit = defineEmits(["update"]);
+
+const props = defineProps(["content"])
+
 const editor = useEditor({
-    // content: '',
+    content: props.content,
     extensions: [
         Document,   // fuck!!!! columns自定义扩展需要
         StarterKit.configure({
@@ -139,6 +143,7 @@ const editor = useEditor({
         Column,  // 支持columns
         Paragraph,  // 支持columns，paragraph是一个很基础的extension
         Mathematics, // 支持latex
+        // DragHandle,  // dragHandle目前效果不符合我的需求，等待官方支持
     ],
     editable: true,
     editorProps: {
@@ -150,23 +155,34 @@ const editor = useEditor({
         },
     },
     autofocus: true,
+    onUpdate({editor}) {
+        const content = editor.getJSON()
+        const html = editor.getHTML()
+        emit("update", content, html)
+    }
 })
 
+const getContent = () => {
+    return editor.getJSON()
+}
 
 </script>
 
 <style scoped>
 /* 设置编辑器的基本格式 */
 :deep() .new-editor {
-    min-height: 500px;
+    background-color: white;
+    padding: 20px;
+    min-height: 1500px;
     outline: unset;
     font-size: 16px;
-    color: rgb(23, 23, 23);
+    color: rgba(46, 52, 64, 0.87);
     line-height: 1.625;
     font-feature-settings:"liga" 0;
     -webkit-text-size-adjust: 100%;
     /* font-variation-settings: normal; */
-    font-family: -apple-system,BlinkMacSystemFont,Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+    font-family: -apple-system,BlinkMacSystemFont,Helvetica Neue,PingFang SC,Microsoft YaHei,Source Han Sans SC,Noto Sans CJK SC,WenQuanYi Micro Hei,sans-serif;
+    /* font-family: -apple-system,BlinkMacSystemFont,Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji; */
 }
 
 /* 防止bubble menu过窄导致换行 */
@@ -430,6 +446,26 @@ blockquote {
   .Tiptap-mathematics-render {
     border-radius: 0.25rem;
     display: inline-block;
+  }
+}
+</style>
+
+<style lang="scss">
+.global-drag-handle {
+  position: absolute;
+
+  &::after {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1.25rem;
+    // content: '⠿';
+    font-weight: 700;
+    cursor: grab;
+    background:#0D0D0D10;
+    color: #0D0D0D50;
+    border-radius: 0.25rem;
   }
 }
 </style>

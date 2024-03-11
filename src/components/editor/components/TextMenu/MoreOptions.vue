@@ -1,44 +1,49 @@
 <template>
-    <n-popover trigger="click">
+    <n-tooltip trigger="hover">
         <template #trigger>
-            <n-button strong secondary style="vertical-align: middle; padding-left: 6px; padding-right: 6px; margin-left: 1px; margin-right: 1px;">
-                <template #icon>
-                    <n-icon><MoreVertical20Regular/></n-icon>
+            <n-popover trigger="click">
+                <template #trigger>
+                    <n-button strong secondary style="vertical-align: middle; padding-left: 6px; padding-right: 6px; margin-left: 1px; margin-right: 1px;">
+                        <template #icon>
+                            <n-icon><MoreVertical20Regular/></n-icon>
+                        </template>
+                    </n-button>
                 </template>
-            </n-button>
+                <n-button strong secondary style="padding-left: 8px; padding-right: 8px; margin-right: 2px;" @click="click_button('subscript')" :class="{'is-active': props.editor.isActive('subscript')}">
+                    <template #icon>
+                        <n-icon><Subscript/></n-icon>
+                    </template>
+                </n-button>
+                <n-button strong secondary style="padding-left: 8px; padding-right: 8px; margin-left: 2px; margin-right: 2px;" @click="click_button('superscript')" :class="{'is-active': props.editor.isActive('superscript')}">
+                    <template #icon>
+                        <n-icon><Superscript/></n-icon>
+                    </template>
+                </n-button>
+                <n-divider vertical style="margin: 0; bottom: 4px"></n-divider>
+                <n-button strong secondary style="padding-left: 8px; padding-right: 8px; margin-left: 2px; margin-right: 2px;" @click="click_button('left')" :class="{'is-active': props.editor.isActive({textAlign: 'left'})}">
+                    <template #icon>
+                        <n-icon><TextAlignLeft20Filled/></n-icon>
+                    </template>
+                </n-button>
+                <n-button strong secondary style="padding-left: 8px; padding-right: 8px; margin-left: 2px; margin-right: 2px;" @click="click_button('center')" :class="{'is-active': props.editor.isActive({textAlign: 'center'})}">
+                    <template #icon>
+                        <n-icon><TextAlignCenter20Filled/></n-icon>
+                    </template>
+                </n-button>
+                <n-button strong secondary style="padding-left: 8px; padding-right: 8px; margin-left: 2px; margin-right: 2px;" @click="click_button('right')" :class="{'is-active': props.editor.isActive({textAlign: 'right'})}">
+                    <template #icon>
+                        <n-icon><TextAlignRight20Filled/></n-icon>
+                    </template>
+                </n-button>
+                <n-button strong secondary style="padding-left: 8px; padding-right: 8px; margin-left: 2px;" @click="click_button('justify')" :class="{'is-active': props.editor.isActive({textAlign: 'justify'})}">
+                    <template #icon>
+                        <n-icon><TextAlignJustify20Filled/></n-icon>
+                    </template>
+                </n-button>
+            </n-popover>
         </template>
-        <n-button strong secondary style="padding-left: 8px; padding-right: 8px; margin-right: 2px;" @click="click_button('subscript')" :class="{'is-active': props.editor.isActive('subscript')}">
-            <template #icon>
-                <n-icon><Subscript/></n-icon>
-            </template>
-        </n-button>
-        <n-button strong secondary style="padding-left: 8px; padding-right: 8px; margin-left: 2px; margin-right: 2px;" @click="click_button('superscript')" :class="{'is-active': props.editor.isActive('superscript')}">
-            <template #icon>
-                <n-icon><Superscript/></n-icon>
-            </template>
-        </n-button>
-        <n-divider vertical style="margin: 0; bottom: 4px"></n-divider>
-        <n-button strong secondary style="padding-left: 8px; padding-right: 8px; margin-left: 2px; margin-right: 2px;" @click="click_button('left')" :class="{'is-active': props.editor.isActive({textAlign: 'left'})}">
-            <template #icon>
-                <n-icon><TextAlignLeft20Filled/></n-icon>
-            </template>
-        </n-button>
-        <n-button strong secondary style="padding-left: 8px; padding-right: 8px; margin-left: 2px; margin-right: 2px;" @click="click_button('center')" :class="{'is-active': props.editor.isActive({textAlign: 'center'})}">
-            <template #icon>
-                <n-icon><TextAlignCenter20Filled/></n-icon>
-            </template>
-        </n-button>
-        <n-button strong secondary style="padding-left: 8px; padding-right: 8px; margin-left: 2px; margin-right: 2px;" @click="click_button('right')" :class="{'is-active': props.editor.isActive({textAlign: 'right'})}">
-            <template #icon>
-                <n-icon><TextAlignRight20Filled/></n-icon>
-            </template>
-        </n-button>
-        <n-button strong secondary style="padding-left: 8px; padding-right: 8px; margin-left: 2px;" @click="click_button('justify')" :class="{'is-active': props.editor.isActive({textAlign: 'justify'})}">
-            <template #icon>
-                <n-icon><TextAlignJustify20Filled/></n-icon>
-            </template>
-        </n-button>
-    </n-popover>
+        More Options
+    </n-tooltip>
 </template>
 
 <script setup lang="ts">

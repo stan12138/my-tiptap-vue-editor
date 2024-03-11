@@ -219,7 +219,7 @@ export const SlashCommand = Extension.create({
                         if (!popup?.[0].state.isShown) {
                           popup?.[0].show()
                         }
-          
+                        // return true
                         return component.ref?.onKeyDown(props)
                       },
           

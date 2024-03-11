@@ -122,12 +122,15 @@ const imageLoad = (e: any) => {
 
 .image-view-left {
     width: fit-content;
-    float: left;
+    /* float: left; */
 }
 
 .image-view-right {
     width: fit-content;
     float: right;
+    clear: right;
+    /* display: inline-block; 
+    text-align: right; */
 }
 
 .image-content {

@@ -22,26 +22,38 @@
                 </template>
             </n-button>
         </ToolTipWrapper>
+        <n-divider vertical style="margin: 0;"></n-divider>
+        <ToolTipWrapper tip="delete">
+            <n-button strong secondary type="error" style="vertical-align: middle; padding-left: 6px; padding-right: 6px; margin-left: 1px; margin-right: 1px;" @click="deleteColumns">
+                <template #icon>
+                    <n-icon><Trash/></n-icon>
+                </template>
+            </n-button>
+        </ToolTipWrapper>
     </bubble-menu>
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
+import { Trash  } from '@vicons/tabler'
 import { BubbleMenu, getAttributes } from '@tiptap/vue-3'
 import { PanelLeft24Regular, PanelRight24Regular} from '@vicons/fluent'
 import { LayoutColumns } from '@vicons/tabler'
 import ToolTipWrapper from '../../../tooltipwrapper/ToolTipWrapper.vue'
+import getRenderContainer from '../../utils/getRenderContainer.ts'
 
 const props = defineProps(['editor'])
 
 const unLockRatio = ref(false)
 
 const shouldShow = ({view, from}) => {
-    console.log(view.state?.selection?.node?.type?.name, from, view)
+    // console.log(view.state?.selection?.node?.type?.name, from, view)
     // 此处直接检查isActive会有一次错误出现menu
     if(props.editor.isActive('columns')) {
         return true;
     }
-    // if(view.state?.selection?.node?.type?.name == 'imageBlock') {
+    // const $myPos = props.editor.$pos($from.pos-1)
+    // console.log(props.editor.$pos(view.state?.selection?.$from.pos-1).node.type.name)
+    // if(view.state?.selection?.node?.type?.name == 'columns') {
     //     return true;
     // }
     return false;
@@ -54,12 +66,33 @@ const checkActive = (label) => {
     // return props.editor.isActive('imageBlock', {'align': label})
 }
 
+const getReferenceClientRect = () => {
+    const renderContainer = getRenderContainer(props.editor, 'columns')
+    const rect = renderContainer?.getBoundingClientRect() || new DOMRect(-1000, -1000, 0, 0)
+    return rect
+}
 
 const tippyOptions = ref({
     'maxWidth': 'auto',
     'zIndex': 20,
-    'appendTo': 'parent'
+    'appendTo': 'parent',
+    "popperOptions": {
+        'modifiers': [{ 'name': 'flip', 'enabled': false }],
+    },
+    "getReferenceClientRect": getReferenceClientRect, //用于始终固定menu的位置
+    // "plugins": [sticky],
+    // "sticky": 'popper'
 })
+
+const deleteColumns = () => {
+    // 其实我并不明白此处是怎么工作的，但是暂时算是有效的吧
+    let paragraph = props.editor.state.selection.$anchor.parent
+    const { $from, empty } = props.editor.state.selection
+    const $myPos = props.editor.$pos($from.pos-1)
+    const columns = $myPos.parent
+    props.editor.chain().setNodeSelection(columns.pos-1).deleteSelection().run()
+    // console.log(columns)
+}
 
 </script>
 

@@ -62,7 +62,7 @@ export const ImageBlock = Image.extend({
     parseHTML() {
       return [
         {
-          tag: 'img[src*="tiptap.dev"]:not([src^="data:"]), img[src*="windows.net"]:not([src^="data:"])',
+          tag: 'img',
         },
       ]
     },
