@@ -25,8 +25,6 @@
                         </n-collapse-item>
                     </n-collapse>                    
                 </div>
-                <!-- <div class="map-search" style="position: relative;">hello</div> -->
-
             </div>
         </div>
     </node-view-wrapper>
@@ -120,19 +118,6 @@ function initMap() {
                 addMarker(marker.marker[0], marker.marker[1], marker.label, false)
             }
         }
-        // 设置地址的zoom事件
-        // map.value.on('moveend', () => {
-        //     let center = map.value.getCenter()
-        //     // props.editor.chain().focus().updateImageBlockSrc(image_href.value).run()
-        //     props.editor.chain().updateCenter([center.lng, center.lat]).run()
-        //     console.log('center chaneg, lng:', center.lng, ", lat:", center.lat)
-        // })
-        // 设置地图的move事件
-        // map.value.on('zoomend', () => {
-        //     let zoom = map.value.getZoom()
-        //     props.editor.chain().updateZoom(zoom).run()
-        //     console.log('zoom change:', zoom)
-        // })
     }).catch((e) => {
         console.log(e);
     });
@@ -146,48 +131,7 @@ const operatorClick = ({expanded}) => {
     }
 }
 
-// const initInfoWindow = (event) => {
-//     if(event.code != 'Enter' || lastMarkerKey == "") {
-//         return 
-//     }
-//     let marker = markers[lastMarkerKey]
-//     if("info" in marker) return;
-//     let content = `
-//     <div class='input-card content-window-card'>
-//         <div style="padding:7px 0px 0px 0px;">
-//             <p class='input-item'>${info.value}</p>
-//         </div>
-//     </div> 
-//     `
-//     let infoWindow = new myAMP.InfoWindow({
-//         // isCustom: true,
-//         content: content,
-//         offset: new myAMP.Pixel(0, -20)
-//     })
-//     infoWindow.open(map.value, marker.marker.getPosition())
-//     markers[lastMarkerKey]['info'] = infoWindow
-// }
 
-// const updateInfoWindow = () => {
-//     console.log("update")
-//     if(lastMarkerKey == "") return 
-//     let marker = markers[lastMarkerKey]
-//     if(!('info' in marker)) return 
-//     if(info.value.length < 1) {
-//         marker.info.close()
-//         delete marker.info
-//         return
-//     }
-//     let content = `
-//     <div class='input-card content-window-card'>
-//         <div style="padding:7px 0px 0px 0px;">
-//             <p class='input-item' style="white-space: pre;">${info.value}</p>
-//         </div>
-//     </div> 
-//     `
-//     console.log("update begin", content)
-//     marker.info.setContent(content)
-// }
 
 const getUpdateInfo = () => {
     let center = map.value.getCenter()
@@ -207,10 +151,7 @@ const updateLabel = () => {
     addLabel(content, marker)
     markers[lastMarkerKey]['label'] = content
     markersInfo[lastMarkerKey]['label'] = content
-    // props.editor.chain().focus().updateMarkers(markersInfo).run()
     props.updateAttributes(getUpdateInfo())
-    // props.editor.chain().updateMarkers(markersInfo).run()
-    
 }
 
 // 只增加label，不会更新任何信息
@@ -225,35 +166,6 @@ const addLabel = (content: string, marker: any) => {
     }
     marker.setLabel({direction:'right', offset: new myAMP.Pixel(10, 0), content: `<div class='info' style="width: ${width}rem;">${content}</div>`})
 }
-
-
-// function createInfoWindow(content) {
-//     var info = document.createElement("div");
-//     info.className = "custom-info input-card content-window-card";
-
-//     //可以通过下面的方式修改自定义窗体的宽高
-//     info.style.width = "100px";
-
-//     // 定义中部内容
-//     var middle = document.createElement("div");
-//     middle.className = "info-middle";
-//     middle.style.backgroundColor = 'white';
-//     middle.innerHTML = content;
-//     info.appendChild(middle);
-
-//     // 定义底部内容
-//     var bottom = document.createElement("div");
-//     bottom.className = "info-bottom";
-//     bottom.style.position = 'relative';
-//     bottom.style.top = '0px';
-//     bottom.style.margin = '0 auto';
-//     var sharp = document.createElement("img");
-//     sharp.src = "https://webapi.amap.com/images/sharp.png";
-//     bottom.appendChild(sharp);
-//     info.appendChild(bottom);
-//     return info;
-// }
-
 
 function searchLocation(position: string) {
     console.log(position)
@@ -297,12 +209,6 @@ function closeMarker(index: string){
 
 const addMarker = (lng: number, lat: number, content = "", needUpdate = true) => {
     let index = Object.keys(markers).length.toString()
-    // let markerContent = `
-    // <div class="custom-content-marker">
-    //     <img src="//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-red.png">
-    //     <div class="close-btn" onclick="closeMarker(${index})">x</div>
-    // </div>
-    // `
     let pos = new myAMP.LngLat(lng, lat)
     let marker = new myAMP.Marker({
         position: pos, 
@@ -314,10 +220,7 @@ const addMarker = (lng: number, lat: number, content = "", needUpdate = true) =>
     marker.on("click", function(e) {
         closeMarker(index);
     })
-    // let marker = new myAMP.Marker({position: pos, content: markerContent, draggable: true, offset: new myAMP.Pixel(-13, -30)});
     // 妈的，label无法设置自动换行，整了一天也没搞定，气死我了
-    // marker.setLabel({direction:'right', offset: new myAMP.Pixel(10, 0), content: `<div class='info' style="width: 10rem;">${title}</div>`})
-    // markerList.push(marker)
     markers[index] = {"marker": marker}
     markersInfo[index] = {"marker": [lng, lat]}
     lastMarkerKey = index
@@ -388,13 +291,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* #container {
-    padding: 0px;
-    margin: 0px;
-    width: 100%;
-    height: 100%;
-} */
-
 .map-search{
     z-index: 1;
     /* padding-left: 10px; */
@@ -410,3 +306,97 @@ onMounted(() => {
 }
 
 </style>
+
+
+<script lang="ts">
+// delete的代码，也许有用后面？
+    // let markerContent = `
+    // <div class="custom-content-marker">
+    //     <img src="//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-red.png">
+    //     <div class="close-btn" onclick="closeMarker(${index})">x</div>
+    // </div>
+    // `
+// function createInfoWindow(content) {
+//     var info = document.createElement("div");
+//     info.className = "custom-info input-card content-window-card";
+
+//     //可以通过下面的方式修改自定义窗体的宽高
+//     info.style.width = "100px";
+
+//     // 定义中部内容
+//     var middle = document.createElement("div");
+//     middle.className = "info-middle";
+//     middle.style.backgroundColor = 'white';
+//     middle.innerHTML = content;
+//     info.appendChild(middle);
+
+//     // 定义底部内容
+//     var bottom = document.createElement("div");
+//     bottom.className = "info-bottom";
+//     bottom.style.position = 'relative';
+//     bottom.style.top = '0px';
+//     bottom.style.margin = '0 auto';
+//     var sharp = document.createElement("img");
+//     sharp.src = "https://webapi.amap.com/images/sharp.png";
+//     bottom.appendChild(sharp);
+//     info.appendChild(bottom);
+//     return info;
+// }
+
+// const initInfoWindow = (event) => {
+//     if(event.code != 'Enter' || lastMarkerKey == "") {
+//         return 
+//     }
+//     let marker = markers[lastMarkerKey]
+//     if("info" in marker) return;
+//     let content = `
+//     <div class='input-card content-window-card'>
+//         <div style="padding:7px 0px 0px 0px;">
+//             <p class='input-item'>${info.value}</p>
+//         </div>
+//     </div> 
+//     `
+//     let infoWindow = new myAMP.InfoWindow({
+//         // isCustom: true,
+//         content: content,
+//         offset: new myAMP.Pixel(0, -20)
+//     })
+//     infoWindow.open(map.value, marker.marker.getPosition())
+//     markers[lastMarkerKey]['info'] = infoWindow
+// }
+
+// const updateInfoWindow = () => {
+//     console.log("update")
+//     if(lastMarkerKey == "") return 
+//     let marker = markers[lastMarkerKey]
+//     if(!('info' in marker)) return 
+//     if(info.value.length < 1) {
+//         marker.info.close()
+//         delete marker.info
+//         return
+//     }
+//     let content = `
+//     <div class='input-card content-window-card'>
+//         <div style="padding:7px 0px 0px 0px;">
+//             <p class='input-item' style="white-space: pre;">${info.value}</p>
+//         </div>
+//     </div> 
+//     `
+//     console.log("update begin", content)
+//     marker.info.setContent(content)
+// }
+
+        // 设置地址的zoom事件
+        // map.value.on('moveend', () => {
+        //     let center = map.value.getCenter()
+        //     // props.editor.chain().focus().updateImageBlockSrc(image_href.value).run()
+        //     props.editor.chain().updateCenter([center.lng, center.lat]).run()
+        //     console.log('center chaneg, lng:', center.lng, ", lat:", center.lat)
+        // })
+        // 设置地图的move事件
+        // map.value.on('zoomend', () => {
+        //     let zoom = map.value.getZoom()
+        //     props.editor.chain().updateZoom(zoom).run()
+        //     console.log('zoom change:', zoom)
+        // })
+</script>

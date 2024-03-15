@@ -78,41 +78,7 @@ export const MapBlock = Node.create({
         setMapBlock:
           () =>
           ({ commands }) =>
-            commands.insertContent(`<div data-type="${this.name}"></div><p></p>`),
-        updateCenter:
-          center => 
-          ({ commands }) => {
-            commands.updateAttributes('MapBlock', { center })
-            // const { state, dispatch } = this.editor.view
-            // console.log(view)
-            // const docEndPos = state.tr.doc.content.size;
-            // const insertTransaction = state.tr.insertText(' ', docEndPos);
-            // console.log("a")
-            // dispatch(insertTransaction)
-            // const newState = this.editor.view.state;
-            // console.log(this)
-            this.editor.view.
-            // this.$emit('update')
-            // 立即创建一个删除该文本节点的事务
-            // const deleteTransaction = newState.tr.delete(docEndPos, docEndPos + 1);
-            // console.log("b")
-            // dispatch(deleteTransaction);
-            // tr.setMeta('forceUpdate', true)
-            // dispatch(state.tr)
-            console.log("update center:", center)
-          },
-        updateZoom:
-          zoom => 
-          ({commands}) => {
-            commands.updateAttributes('MapBlock', { zoom: zoom })
-            console.log('going update zoom: ', zoom)
-          },
-        updateMarkers:
-          newMarkers => 
-          ({commands}) => {
-            commands.updateAttributes('MapBlock', { markers: newMarkers })
-            console.log('going update markers: ', newMarkers)
-          }
+            commands.insertContent(`<div data-type="${this.name}"></div><p></p>`)
       }
     },
   
