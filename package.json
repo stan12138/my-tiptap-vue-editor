@@ -11,6 +11,7 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
+    "@amap/amap-jsapi-loader": "^1.0.1",
     "@ckpack/vue-color": "^1.5.0",
     "@tiptap-pro/extension-emoji": "^2.7.5",
     "@tiptap-pro/extension-file-handler": "^2.7.5",
@@ -43,8 +44,10 @@
     "@tiptap/suggestion": "^2.2.4",
     "@tiptap/vue-3": "^2.2.3",
     "axios": "^1.6.7",
+    "d3": "^7.8.5",
     "katex": "^0.16.9",
     "lowlight": "^3.1.0",
+    "uuid": "^9.0.1",
     "vue": "^3.4.15"
   },
   "devDependencies": {

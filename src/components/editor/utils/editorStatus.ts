@@ -3,7 +3,7 @@ import { isTextSelection } from '@tiptap/core'
 
 export const isSelectCustomNode = (editor: Editor) => {
     const customNodes = [
-        "link", "imageUpload", 'imageBlock', 'columns', 'column'
+        "link", "imageUpload", 'imageBlock', 'columns', 'column', "table", "MapBlock"
     ]
 
     return customNodes.some(type => editor.isActive(type))

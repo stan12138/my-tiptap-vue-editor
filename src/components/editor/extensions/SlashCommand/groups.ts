@@ -1,6 +1,6 @@
 // import { Group } from './types.ts'
-import { H1, H2, H3, List, ListNumbers, ListCheck, Quote, FileCode, Columns, Minus, Book2  } from '@vicons/tabler'
-import { Table32Regular, Image24Regular } from '@vicons/fluent'
+import { H1, H2, H3, List, ListNumbers, ListCheck, Quote, FileCode, Columns, Minus, Book2, Map2  } from '@vicons/tabler'
+import { Table32Regular, Image24Regular, DrawShape24Regular } from '@vicons/fluent'
 import { markRaw } from 'vue';
 
 export const GROUPS = [
@@ -100,7 +100,7 @@ export const GROUPS = [
         description: 'Insert a table',
         shouldBeHidden: editor => editor.isActive('columns'),
         action: editor => {
-          editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+          editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: false }).run()
         },
       },
       {
@@ -137,6 +137,27 @@ export const GROUPS = [
           editor.chain().focus().setHorizontalRule().run()
         },
       },
+      {
+        name: 'Drawing',
+        label: 'Drawing',
+        iconName: markRaw(DrawShape24Regular),
+        description: 'drawing',
+        aliases: ['hr'],
+        action: editor => {
+          editor.chain().focus().setPaper().run()
+        },
+      },
+      ,
+      {
+        name: 'Map',
+        label: 'Map',
+        iconName: markRaw(Map2),
+        description: 'add Map',
+        aliases: ['hr'],
+        action: editor => {
+          editor.chain().focus().setMapBlock().run()
+        },
+      }
     ],
   },
 ]

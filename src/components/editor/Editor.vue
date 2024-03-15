@@ -4,6 +4,8 @@
         <LinkMenu v-if="editor" :editor="editor"></LinkMenu>
         <ImageBlockMenu v-if="editor" :editor="editor"></ImageBlockMenu>
         <ColumnsMenu v-if="editor" :editor="editor"></ColumnsMenu>
+        <TableColumnMenu v-if="editor" :editor="editor"></TableColumnMenu>
+        <TableRowMenu v-if="editor" :editor="editor"></TableRowMenu>
         <editor-content v-if="editor" :editor="editor" style="min-height: 500px;"/>
     </div>
 </template>
@@ -25,10 +27,10 @@ import Superscript from '@tiptap/extension-superscript'
 import TextAlign from '@tiptap/extension-text-align'
 import Placeholder from '@tiptap/extension-placeholder'
 import Focus from '@tiptap/extension-focus'
-import Table from '@tiptap/extension-table'
-import TableCell from '@tiptap/extension-table-cell'
-import TableHeader from '@tiptap/extension-table-header'
-import TableRow from '@tiptap/extension-table-row'
+// import Table from '@tiptap/extension-table'
+// import TableCell from '@tiptap/extension-table-cell'
+// import TableHeader from '@tiptap/extension-table-header'
+// import TableRow from '@tiptap/extension-table-row'
 import FileHandler from '@tiptap-pro/extension-file-handler'
 import Emoji, { gitHubEmojis } from '@tiptap-pro/extension-emoji'
 import Paragraph from '@tiptap/extension-paragraph'
@@ -46,6 +48,17 @@ import Columns from "./extensions/MultiColumn/Columns.ts"
 import Column from "./extensions/MultiColumn/Column.ts"
 import Document from "./extensions/Document/Document.ts"
 import DragHandle from './extensions/DragHandle/DragHandle.js'
+import Paper from './extensions/Paper/Paper.ts'
+
+import MyTable from './extensions/Table/Table.ts'
+import TableCell from './extensions/Table/Cell.ts'
+import MyTableHeader from './extensions/Table/Header.ts'
+import MyTableRow from './extensions/Table/Row.ts'
+
+import MapBlock from './extensions/MapBlock/MapBlock.ts'
+
+import TableColumnMenu from './extensions/Table/menus/TableColumn/TableColumnMenu.vue'
+import TableRowMenu from './extensions/Table/menus/TableRow/TableRowMenu.vue'
 
 import TextMenu from './components/TextMenu/TextMenu.vue'
 import LinkMenu from './components/LinkMenu/LinkMenu.vue'
@@ -109,12 +122,16 @@ const editor = useEditor({
         }),
         SlashCommand,   // slash命令
         Focus,   // 用于提供has-focus css class，配合placeholder实现placeholder的设置
-        Table.configure({   // 支持表格 --> 
-          resizable: true,
-        }),
+        // Table.configure({   // 支持表格 --> 
+        //   resizable: true,
+        // }),
+        // TableCell,
+        // TableHeader,
+        // TableRow,   // <-- 支持表格
+        MyTable,   // 支持表格 --> 
         TableCell,
-        TableHeader,
-        TableRow,   // <-- 支持表格
+        MyTableHeader,
+        MyTableRow,   // <-- 支持表格
         ImageUpload, // 图片上传
         ImageBlock,  // 图片展示
         FileHandler.configure({    // 支持拖拽，粘贴图片到编辑器
@@ -144,6 +161,8 @@ const editor = useEditor({
         Paragraph,  // 支持columns，paragraph是一个很基础的extension
         Mathematics, // 支持latex
         // DragHandle,  // dragHandle目前效果不符合我的需求，等待官方支持
+        Paper,    // 支持画板
+        MapBlock, // 支持地图
     ],
     editable: true,
     editorProps: {
@@ -159,7 +178,10 @@ const editor = useEditor({
         const content = editor.getJSON()
         const html = editor.getHTML()
         emit("update", content, html)
-    }
+    },
+    // onTransaction({ editor, transaction }) {
+    //   console.log("ttttttttt")
+    // },
 })
 
 const getContent = () => {
@@ -249,7 +271,7 @@ blockquote {
 
 </style>
 
-<style lang="scss">
+<!-- <style lang="scss">
 // 表格样式
 .tiptap {
   table {
@@ -313,7 +335,7 @@ blockquote {
   cursor: ew-resize;
   cursor: col-resize;
 }
-</style>
+</style> -->
 
 <style>
 /* imageblock样式 */
@@ -468,4 +490,241 @@ blockquote {
     border-radius: 0.25rem;
   }
 }
+</style>
+
+<style>
+/* 表格样式 */
+.ProseMirror .tableWrapper {
+  margin-top: 3rem; /* 对应 my-12 */
+  margin-bottom: 3rem; /* 对应 my-12 */
+}
+
+.ProseMirror table {
+  border-collapse: collapse;
+  border: 1px solid rgba(0, 0, 0, 0.1); /* border-black/10 */
+  border-radius: 0.25rem; /* rounded */
+  box-sizing: border-box; /* box-border */
+  width: 100%; /* w-full */
+}
+
+.ProseMirror table.dark {
+  border-color: rgba(255, 255, 255, 0.2); /* dark:border-white/20 */
+}
+
+.ProseMirror table td,
+.ProseMirror table th {
+  border: 1px solid rgba(0, 0, 0, 0.1); /* border-black/10 */
+  min-width: 100px; /* min-w-[100px] */
+  padding: 0.5rem; /* p-2 */
+  position: relative;
+  text-align: left;
+  vertical-align: top;
+}
+
+.ProseMirror table td.dark,
+.ProseMirror table th.dark {
+  border-color: rgba(255, 255, 255, 0.2); /* dark:border-white/20 */
+}
+
+.ProseMirror table td p,
+.ProseMirror table th p {
+  margin: 0; /* m-0 */
+}
+
+.ProseMirror table td p + p,
+.ProseMirror table th p + p {
+  margin-top: 0.75rem; /* mt-3 */
+}
+
+.ProseMirror table th {
+  font-weight: bold; /* font-bold */
+}
+
+.ProseMirror table .column-resize-handle {
+  bottom: -2px;
+  display: flex;
+  pointer-events: none;
+  position: absolute;
+  right: -0.25rem; /* -1px in Tailwind, adjusted for general CSS */
+  top: 0;
+  width: 0.5rem; /* w-2 */
+}
+
+.ProseMirror table .column-resize-handle::before {
+  background-color: rgba(0, 0, 0, 0.2); /* bg-black/20 */
+  height: 100%;
+  width: 1px;
+  margin-left: 0.5rem; /* ml-2 */
+  content: '';
+}
+
+.ProseMirror table .column-resize-handle.dark::before {
+  background-color: rgba(255, 255, 255, 0.2); /* dark:bg-white/20 */
+}
+
+.ProseMirror table .selectedCell {
+  background-color: rgba(0, 0, 0, 0.05); /* bg-black/5 */
+  border: 1px double rgba(0, 0, 0, 0.2); /* border-black/20, border-double */
+}
+
+.ProseMirror table .selectedCell.dark {
+  background-color: rgba(255, 255, 255, 0.1); /* dark:bg-white/10 */
+  border-color: rgba(255, 255, 255, 0.2); /* dark:border-white/20 */
+}
+
+.ProseMirror table .grip-column,
+.ProseMirror table .grip-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.05); /* bg-black/5 */
+  cursor: pointer;
+  position: absolute;
+  z-index: 10;
+}
+
+.ProseMirror table .grip-column.dark,
+.ProseMirror table .grip-row.dark {
+  background-color: rgba(255, 255, 255, 0.1); /* dark:bg-white/10 */
+}
+
+.ProseMirror table .grip-column {
+  width: calc(100% + 1px);
+  border-left: 1px solid rgba(0, 0, 0, 0.2); /* border-l border-black/20 */
+  height: 0.75rem; /* h-3 */
+  left: 0;
+  margin-left: -1px; /* -ml-[1px] */
+  top: -0.75rem; /* -top-3 */
+}
+
+.ProseMirror table .grip-column.dark {
+  border-color: rgba(255, 255, 255, 0.2); /* dark:border-white/20 */
+}
+
+.ProseMirror table .grip-column:hover,
+.ProseMirror table .grip-column.selected {
+  background-color: rgba(0, 0, 0, 0.1); /* bg-black/10 on hover */
+}
+
+.ProseMirror table .grip-column:hover.dark,
+.ProseMirror table .grip-column.selected.dark {
+  background-color: rgba(255, 255, 255, 0.2); /* dark:bg-white/20 on hover */
+}
+
+.ProseMirror table .grip-column.first {
+  border-color: transparent;
+  border-top-left-radius: 0.125rem; /* rounded-tl-sm */
+}
+
+.ProseMirror table .grip-column.last {
+  border-top-right-radius: 0.125rem; /* rounded-tr-sm */
+}
+
+.ProseMirror table .grip-column.selected {
+  background-color: rgba(0, 0, 0, 0.3); /* bg-black/30 */
+  border-color: rgba(0, 0, 0, 0.3); /* border-black/30 */
+  box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.1); /* shadow-sm */
+}
+
+.ProseMirror table .grip-column.selected.dark {
+  background-color: rgba(255, 255, 255, 0.3); /* dark:bg-white/30 */
+  border-color: rgba(255, 255, 255, 0.3); /* dark:border-white/30 */
+}
+
+.ProseMirror table .grip-column.selected:hover::before {
+    /* border-left-width: 2px;
+    border-style: dotted; */
+    content: '...';
+    height: 0.625rem;
+    position: absolute;
+    top: -50%; /* 垂直居中 */
+    transform: translateY(-50%); /* 确保垂直居中 */
+    /* border: 0 solid #181818; */
+}
+
+.ProseMirror table .grip-row {
+  height: calc(100% + 1px);
+  border-top: 1px solid rgba(0, 0, 0, 0.2); /* border-t border-black/20 */
+  left: -0.75rem; /* -left-3 */
+  width: 0.75rem; /* w-3 */
+  top: 0;
+  margin-top: -1px; /* -mt-[1px] */
+}
+
+.ProseMirror table .grip-row.dark {
+  border-color: rgba(255, 255, 255, 0.2); /* dark:border-white/20 */
+}
+
+.ProseMirror table .grip-row:hover,
+.ProseMirror table .grip-row.selected {
+  background-color: rgba(0, 0, 0, 0.1); /* bg-black/10 on hover */
+}
+
+.ProseMirror table .grip-row:hover.dark,
+.ProseMirror table .grip-row.selected.dark {
+  background-color: rgba(255, 255, 255, 0.2); /* dark:bg-white/20 on hover */
+}
+
+.ProseMirror table .grip-row.first {
+  border-color: transparent;
+  border-top-left-radius: 0.125rem; /* rounded-tl-sm */
+}
+
+.ProseMirror table .grip-row.last {
+  border-bottom-left-radius: 0.125rem; /* rounded-bl-sm */
+}
+
+.ProseMirror table .grip-row.selected {
+  /* background-color: rgba(0, 0, 0, 0.3); bg-black/30 */
+  /* border-color: rgba(0, 0, 0, 0.3); border-black/30 */
+  /* box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.1); shadow-sm */
+  /* content: ''; */
+}
+
+.ProseMirror table .grip-row.selected::before {
+    content: '⠿';
+    height: 0.625rem;
+    position: absolute;
+    top: 20%;
+    left: 50%; /* 垂直居中 */
+    transform: translateX(-50%); /* 确保垂直居中 */
+}
+
+.resize-cursor {
+  cursor: ew-resize;
+  cursor: col-resize;
+}
+
+</style>
+
+
+<style>
+/* 地图插件的样式，包括标记点和label */
+.amap-icon img{
+    width: 25px;
+    height: 34px;
+}
+
+.amap-marker-label{
+    border: 0;
+    background-color: transparent;
+}
+
+.info {
+  padding: .75rem 1.25rem;
+  margin-bottom: 1rem;
+  border-radius: .25rem;
+  position: relative;
+  margin:0;
+  top: 0;
+  right: 0;
+  background-color: white;
+  /* width: auto; */
+  border-width: 0;
+  /* width: 5rem; */
+  white-space: normal;
+  /* right: 1rem; */
+  box-shadow: 0 2px 6px 0 rgba(114, 124, 245, .5);
+}
+
 </style>
