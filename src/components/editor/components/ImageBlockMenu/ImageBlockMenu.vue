@@ -48,6 +48,7 @@ const props = defineProps(['editor'])
 const unLockRatio = ref(false)
 
 const shouldShow = ({view, from}) => {
+    if(!props.editor.isEditable) return false
     // console.log(props.editor.state?.selection?.node?.type.name, from, view)
     // 此处直接检查isActive会有一次错误出现menu
     if(view.state?.selection?.node?.type?.name == 'imageBlock') {

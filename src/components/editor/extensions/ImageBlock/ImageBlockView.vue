@@ -1,9 +1,8 @@
 <template>
     <node-view-wrapper class="image-view-container" :class="`image-view-${props.node.attrs.align}`">
-        <!-- :class="{'img-margin-left': props.node.attrs.align=='left', 'img-margin-center': props.node.attrs.align=='center', 'img-margin-right': props.node.attrs.align=='right'}" -->
-        <div draggable="true" data-drag-handle :class="{'image-view__body--focused': (props.selected || resizing), 'image-view__body--resizing': resizing}" class="image-view-body">
+        <div draggable="true" data-drag-handle :class="{'image-view__body--focused': (props.selected || resizing)&&props.editor.isEditable, 'image-view__body--resizing': resizing}" class="image-view-body">
             <img :src="props.node.attrs.src" alt="" @click="onClick" @load="imageLoad" class="image-content" :style="{width: props.node.attrs.width?.toString()+'px', height: props.node.attrs.height?.toString()+'px'}" />
-            <span v-show="props.selected || resizing" v-for="direction in resizeDirections" :key="direction" :class="`image-resizer-handler-${direction}`" @mousedown="mouseDown($event, direction)" class="image-resizer-handler"></span>
+            <span v-if="props.editor.isEditable" v-show="props.selected || resizing" v-for="direction in resizeDirections" :key="direction" :class="`image-resizer-handler-${direction}`" @mousedown="mouseDown($event, direction)" class="image-resizer-handler"></span>
         </div>
     </node-view-wrapper>
 </template>
@@ -134,7 +133,7 @@ const imageLoad = (e: any) => {
 }
 
 .image-content {
-    /* width: 225px; */
+    border-radius: 3px;
 }
 
 /* .image-resizer {

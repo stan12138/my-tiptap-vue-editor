@@ -6,7 +6,7 @@ import {
     NDropdown, NImage, NUpload, NInputGroup, NSpin, NRadio,
     NCheckbox, NDatePicker, NProgress, NColorPicker, NPopover,
     NSwitch, NScrollbar, NFlex, NUploadDragger, NText, NSlider,
-    NTooltip, NCollapse, NCollapseItem, NSelect
+    NTooltip, NCollapse, NCollapseItem, NSelect, NInputNumber
 } from "naive-ui";
 
 const naive = create({
@@ -18,7 +18,7 @@ const naive = create({
         NDropdown, NImage, NUpload, NInputGroup, NSpin, NRadio,
         NCheckbox, NDatePicker, NProgress, NColorPicker, NPopover,
         NSwitch, NScrollbar, NFlex, NUploadDragger, NText, NSlider,
-        NTooltip, NCollapse, NCollapseItem, NSelect
+        NTooltip, NCollapse, NCollapseItem, NSelect, NInputNumber
     ]
 })
 

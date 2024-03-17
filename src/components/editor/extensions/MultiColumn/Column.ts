@@ -51,7 +51,7 @@ export const Column = Node.create({
         if(childNum == 1 && text == "" && childName == "paragraph") {
           
           let v = this.editor.commands.deleteNode(parent)
-          console.log(v, parent)
+          // console.log(v, parent)
         }
         // if (!empty || $anchor.parent.type.name !== this.name) {
         //   return false

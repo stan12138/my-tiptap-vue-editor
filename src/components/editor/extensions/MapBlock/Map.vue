@@ -1,26 +1,32 @@
 <template>
     <node-view-wrapper class="vue-component">
-        <div style="height: 500px;">
-
+        <div style="height: 400px;">
             <div v-if="containerID" :id="containerID" style="padding: 0px; margin: 0px; width: 100%; height: 100%;">
                 <div style="z-index: 1; background-color: white; position: relative; top: 10px; left: 10px; width: fit-content; height: fit-content; border-radius: 5px; padding: 8px;">
                     <n-collapse class="operator" @item-header-click="operatorClick">
                         <n-collapse-item title="操作" name="1">
-                            <n-switch v-model:value="couldAddMarker" :rail-style="railStyle">
-                                <template #unchecked>
-                                    地点检索
-                                </template>
-                                <template #checked>
-                                    添加标记点
-                                </template>
-                            </n-switch>
-                            <n-select v-if="!couldAddMarker" v-model:value="loc" placeholder="搜索位置" 
+                            <n-grid x-gap="0" :cols="4">
+                                <n-gi v-if="props.editor.isEditable" :span="3">
+                                    <n-switch v-model:value="couldAddMarker" :rail-style="railStyle">
+                                        <template #unchecked>
+                                            地点检索
+                                        </template>
+                                        <template #checked>
+                                            添加标记点
+                                        </template>
+                                    </n-switch>
+                                </n-gi>
+                                <n-gi :span="1">
+                                    <n-checkbox v-model:checked="frozen" @update:checked="frozenCheckHandler">冻结</n-checkbox>
+                                </n-gi>
+                            </n-grid>
+                            <n-select v-if="!couldAddMarker && props.editor.isEditable" v-model:value="loc" placeholder="搜索位置" 
                                 :options="searchResults" filterable :loading="loading" 
                                 clearable remote :clear-filter-after-select="false" 
                                 @search="searchLocation" @update:value="selectLoc" class="map-search"/>
-                            <div v-else style="margin: 10px; width: 12.2rem">
+                            <div v-if="couldAddMarker && props.editor.isEditable" style="margin: 10px; width: 12.2rem">
                                 <!-- <n-input v-model:value="info" type="textarea" placeholder="标记点信息" :autosize="{minRows: 3}" @keyup="initInfoWindow" @input="updateInfoWindow"/> -->
-                                <n-input v-model:value="info" type="textarea" placeholder="标记点信息" :autosize="{minRows: 3}" @input="updateLabel"/>
+                                <n-input :disabled="lastMarkerKey.length<1" v-model:value="info" type="textarea" placeholder="标记点信息" :autosize="{minRows: 3}" @input="updateLabel"/>
                             </div>
                         </n-collapse-item>
                     </n-collapse>                    
@@ -47,6 +53,8 @@ const loc = ref("")
 const info = ref("")
 
 const couldAddMarker = ref(false)
+// 是否冻结地图
+const frozen = ref(false)
 
 // 地点搜索关键字
 const keyword = ref("")
@@ -63,7 +71,7 @@ let markers = {};
 // 用于存储的marker信息
 let markersInfo = {};
 // 最后一个maker的key
-let lastMarkerKey = "" 
+let lastMarkerKey = ref("") 
 // 原始zoom
 let oriZoom = 14
 // 原始中心
@@ -109,15 +117,26 @@ function initMap() {
                 addMarker(pos.lng, pos.lat)
             }
         })
-
+        if(props.editor.isEditable) {
+            // 设置地址的zoom事件
+            map.value.on('moveend', () => {
+                props.updateAttributes(getUpdateInfo())
+            })
+            // 设置地图的move事件
+            map.value.on('zoomend', () => {
+                props.updateAttributes(getUpdateInfo())
+            })   
+        }
         if(needReload) {
             let attr = props.node.attrs
             for(let key in attr.markers) {
                 let marker = attr.markers[key]
-                console.log(marker)
+                // console.log(marker)
                 addMarker(marker.marker[0], marker.marker[1], marker.label, false)
             }
         }
+        // 初始化冻结操作
+        frozenMap()
     }).catch((e) => {
         console.log(e);
     });
@@ -127,10 +146,41 @@ const operatorClick = ({expanded}) => {
     if(!expanded) {
         couldAddMarker.value = false;
         info.value = ""
-        lastMarkerKey = ""
+        lastMarkerKey.value = ""
     }
 }
 
+watch(couldAddMarker, async (newValue, oldValue) => {
+    info.value = ""
+})
+
+// 冻结地图
+const frozenMap = () => {
+    if(frozen.value) {
+        map.value.setStatus({
+            dragEnable: false,
+            keyboardEnable: false,
+            doubleClickZoom: false,
+            zoomEnable: false,
+            rotateEnable: false
+        });
+    } else {
+        map.value.setStatus({
+            dragEnable: true,
+            keyboardEnable: true,
+            doubleClickZoom: true,
+            zoomEnable: true,
+            rotateEnable: true
+        });
+    }
+}
+
+const frozenCheckHandler = () => {
+    frozenMap()
+    if(props.editor.isEditable) {
+        props.updateAttributes(getUpdateInfo())
+    }
+}
 
 
 const getUpdateInfo = () => {
@@ -139,28 +189,29 @@ const getUpdateInfo = () => {
         center: [center.lng, center.lat],
         zoom: map.value.getZoom(),
         markers: markersInfo,
-        containerID: containerID.value
+        containerID: containerID.value,
+        frozen: frozen.value
     }
     return updateInfo
 }
 
 const updateLabel = () => {
-    if(lastMarkerKey == "") return 
-    let marker = markers[lastMarkerKey].marker
+    if(lastMarkerKey.value == "") return 
+    let marker = markers[lastMarkerKey.value].marker
     let content = info.value
     addLabel(content, marker)
-    markers[lastMarkerKey]['label'] = content
-    markersInfo[lastMarkerKey]['label'] = content
+    markers[lastMarkerKey.value]['label'] = content
+    markersInfo[lastMarkerKey.value]['label'] = content
     props.updateAttributes(getUpdateInfo())
 }
 
 // 只增加label，不会更新任何信息
 const addLabel = (content: string, marker: any) => {
     let width = 5
-    if(content.length < 3) {
+    if(content.length < 2) {
         width = 5
-    } else if(content.length < 9) {
-        width = content.length + 1
+    } else if(content.length < 7) {
+        width = content.length + 3
     } else {
         width = 10
     }
@@ -189,41 +240,51 @@ function searchLocation(position: string) {
                     value: key
                 })
             }
-            console.log(searchOptions, options)
+            // console.log(searchOptions, options)
             searchResults.value = options
         });
     });
 }
 
 function closeMarker(index: string){
+    if(!props.editor.isEditable) return;
     markers[index].marker.setMap(null);
     if('info' in markers[index]) {
         markers[index].info.close()
     }
     delete markers[index]
     delete markersInfo[index]
+    info.value = ""
     // props.editor.chain().focus().updateMarkers(markersInfo).run()
     props.updateAttributes(getUpdateInfo())
-    lastMarkerKey = ""
+    lastMarkerKey.value = ""
 }
 
 const addMarker = (lng: number, lat: number, content = "", needUpdate = true) => {
     let index = Object.keys(markers).length.toString()
     let pos = new myAMP.LngLat(lng, lat)
+    let markerContent = `
+        <div class="custom-content-marker">
+           <img src="//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-red.png">
+           <div class="close-btn" onclick="closeMarker(${index})">X</div>
+        </div>
+    `;
     let marker = new myAMP.Marker({
         position: pos, 
-        draggable: true, 
-        icon: '//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-red.png', 
+        draggable: props.editor.isEditable, 
+        content: markerContent,
+        // icon: '//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-red.png', 
         offset: new myAMP.Pixel(-13, -30),
         title: `lng: ${lng}, lat:${lat}`
     });
-    marker.on("click", function(e) {
-        closeMarker(index);
-    })
+    // marker.on("click", function(e) {
+    //     closeMarker(index);
+    // })
     // 妈的，label无法设置自动换行，整了一天也没搞定，气死我了
+    info.value = ""
     markers[index] = {"marker": marker}
     markersInfo[index] = {"marker": [lng, lat]}
-    lastMarkerKey = index
+    lastMarkerKey.value = index
     map.value.add(marker)
     if(content != "") {
         addLabel(content, marker)
@@ -233,6 +294,11 @@ const addMarker = (lng: number, lat: number, content = "", needUpdate = true) =>
     if(needUpdate) {
         props.updateAttributes(getUpdateInfo())
     }
+    marker.on('dragend', function(e) {
+        let pos = marker.getPosition()
+        markersInfo[index] = {"marker": [pos.lng, pos.lat]}
+        props.updateAttributes(getUpdateInfo())
+    })
 }
 
 // 搜索选择目标
@@ -242,15 +308,9 @@ const selectLoc = (query: string) => {
     if(!res || !("location" in res)) {
         return 
     }
-    console.log(res.location.lat, res.location.lng, res)
+    // console.log(res.location.lat, res.location.lng, res)
     map.value.setZoomAndCenter(13.5, [res.location.lng, res.location.lat]); 
     addMarker(res.location.lng, res.location.lat, res.name)
-}
-
-const getMapInfo = () => {
-    let zoom = map.value.getZoom()
-    let center = map.value.getCenter()
-    console.log("zoom:", zoom, " center:", center)
 }
 
 // switch按钮的样式
@@ -274,6 +334,7 @@ const railStyle = ({focused, checked}) => {
 onMounted(() => {
     let attr = props.node.attrs
     needReload = (attr.center.length == 2 && attr.containerID != "") ? true : false
+    frozen.value = attr.frozen
     // 认为是load数据
     if(needReload) {
         oriZoom = attr.zoom

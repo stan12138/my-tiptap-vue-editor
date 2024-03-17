@@ -1,6 +1,6 @@
 import { Editor } from '@tiptap/vue-3'
-
-export const getRenderContainer = (editor: Editor, nodeType: string) => {
+// 临时兼容一下codeBlock
+export const getRenderContainer = (editor: Editor, nodeType: string, isCode=false) => {
   const {
     view,
     state: {
@@ -12,7 +12,11 @@ export const getRenderContainer = (editor: Editor, nodeType: string) => {
   const elementCount = elements.length
   const innermostNode = elements[elementCount - 1]
   const element = innermostNode
-
+  if(isCode) {
+    let tagName = element.tagName
+    if(tagName == 'PRE' && element.firstElementChild?.tagName=='CODE') return element;
+    // console.log(tagName, element.firstElementChild)
+  }
   if (
     (element && element.getAttribute('data-type') && element.getAttribute('data-type') === nodeType) ||
     (element && element.classList && element.classList.contains(nodeType))

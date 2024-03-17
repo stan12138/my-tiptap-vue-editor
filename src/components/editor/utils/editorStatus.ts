@@ -3,8 +3,10 @@ import { isTextSelection } from '@tiptap/core'
 
 export const isSelectCustomNode = (editor: Editor) => {
     const customNodes = [
-        "link", "imageUpload", 'imageBlock', 'columns', 'column', "table", "MapBlock"
+        "link", "imageUpload", 'imageBlock', 'columns', 'column',  "MapBlock", "paper", "codeBlock"
     ]
+    if(editor.state.selection.$anchor.parent.type.name == 'tableCell') return true;
+    // console.log(editor)
 
     return customNodes.some(type => editor.isActive(type))
 }

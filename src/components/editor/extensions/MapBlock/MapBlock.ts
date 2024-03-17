@@ -57,6 +57,13 @@ export const MapBlock = Node.create({
                 renderHTML: attributes => ({
                     'data-containerID': attributes.containerID,
                 }),
+            },
+            frozen: {
+                default: false,
+                parseHTML: element => element.getAttribute('data-frozen'),
+                renderHTML: attributes => ({
+                    'data-frozen': attributes.frozen,
+                }),
             }
         }
     },

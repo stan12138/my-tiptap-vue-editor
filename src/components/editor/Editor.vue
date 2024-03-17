@@ -6,6 +6,7 @@
         <ColumnsMenu v-if="editor" :editor="editor"></ColumnsMenu>
         <TableColumnMenu v-if="editor" :editor="editor"></TableColumnMenu>
         <TableRowMenu v-if="editor" :editor="editor"></TableRowMenu>
+        <CodeBlockMenu v-if="editor" :editor="editor"></CodeBlockMenu>
         <editor-content v-if="editor" :editor="editor" style="min-height: 500px;"/>
     </div>
 </template>
@@ -13,7 +14,7 @@
 <script setup lang="ts">
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
-import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight'
+// import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight'
 import TaskItem from '@tiptap/extension-task-item'
 import TaskList from '@tiptap/extension-task-list'
 import FontFamily from '@tiptap/extension-font-family'
@@ -49,6 +50,7 @@ import Column from "./extensions/MultiColumn/Column.ts"
 import Document from "./extensions/Document/Document.ts"
 import DragHandle from './extensions/DragHandle/DragHandle.js'
 import Paper from './extensions/Paper/Paper.ts'
+import MyCodeBlock from './extensions/MyCodeBlock/MyCodeBlock.js'
 
 import MyTable from './extensions/Table/Table.ts'
 import TableCell from './extensions/Table/Cell.ts'
@@ -64,6 +66,7 @@ import TextMenu from './components/TextMenu/TextMenu.vue'
 import LinkMenu from './components/LinkMenu/LinkMenu.vue'
 import ImageBlockMenu from './components/ImageBlockMenu/ImageBlockMenu.vue'
 import ColumnsMenu from './components/ColumnsMenu/ColumnsMenu.vue'
+import CodeBlockMenu from './components/CodeBlockMenu/CodeBlockMenu.vue'
 
 import { Request } from '../../plugins/request.ts'
 
@@ -86,9 +89,13 @@ const editor = useEditor({
         }),
         // DragHandle,
         // SlashCommand,
-        CodeBlockLowlight.configure({   // 代码块，支持highlight
+        // CodeBlockLowlight.configure({   // 代码块，支持highlight
+        //     lowlight,
+        //     defaultLanguage: 'plaintext',
+        // }),
+        MyCodeBlock.configure({   // 代码块，支持highlight
             lowlight,
-            defaultLanguage: null,
+            defaultLanguage: 'plaintext',
         }),
         LiteralTab,     // 支持tab
         TaskList,    // 支持taskList
@@ -207,6 +214,14 @@ const getContent = () => {
     /* font-family: -apple-system,BlinkMacSystemFont,Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji; */
 }
 
+:deep() a {
+    color: rgb(129, 161, 193);
+    cursor: pointer;
+    transition: all 0.4s ease-in-out 0s;
+    /* font-weight: 500; */
+    text-decoration: unset;
+}
+
 /* 防止bubble menu过窄导致换行 */
 :deep() .tippy-box {
     max-width: unset !important;
@@ -271,72 +286,6 @@ blockquote {
 
 </style>
 
-<!-- <style lang="scss">
-// 表格样式
-.tiptap {
-  table {
-    border-collapse: collapse;
-    table-layout: fixed;
-    width: 100%;
-    margin: 0;
-    overflow: hidden;
-
-    td,
-    th {
-      min-width: 1em;
-      border: 2px solid #ced4da;
-      padding: 3px 5px;
-      vertical-align: top;
-      box-sizing: border-box;
-      position: relative;
-
-      > * {
-        margin-bottom: 0;
-      }
-    }
-
-    th {
-      font-weight: bold;
-      text-align: left;
-      background-color: #f1f3f5;
-    }
-
-    .selectedCell:after {
-      z-index: 2;
-      position: absolute;
-      content: "";
-      left: 0; right: 0; top: 0; bottom: 0;
-      background: rgba(200, 200, 255, 0.4);
-      pointer-events: none;
-    }
-
-    .column-resize-handle {
-      position: absolute;
-      right: -2px;
-      top: 0;
-      bottom: -2px;
-      width: 4px;
-      background-color: #adf;
-      pointer-events: none;
-    }
-
-    p {
-      margin: 0;
-    }
-  }
-}
-
-.tableWrapper {
-  padding: 1rem 0;
-  overflow-x: auto;
-}
-
-.resize-cursor {
-  cursor: ew-resize;
-  cursor: col-resize;
-}
-</style> -->
-
 <style>
 /* imageblock样式 */
 .ProseMirror .node-imageBlock img {
@@ -347,9 +296,7 @@ blockquote {
 }
 
 .ProseMirror .node-imageBlock:hover img {
-    border-width: 2px;
-    --tw-border-opacity: 1;
-    border-color: rgb(245 245 245/var(--tw-border-opacity))
+    border-color: rgb(245 245 245);
 }
 .ProseMirror img {
     height: auto;
@@ -495,8 +442,8 @@ blockquote {
 <style>
 /* 表格样式 */
 .ProseMirror .tableWrapper {
-  margin-top: 3rem; /* 对应 my-12 */
-  margin-bottom: 3rem; /* 对应 my-12 */
+  margin-top: 1.2rem; /* 对应 my-12 */
+  margin-bottom: 1.2rem; /* 对应 my-12 */
 }
 
 .ProseMirror table {
@@ -509,6 +456,11 @@ blockquote {
 
 .ProseMirror table.dark {
   border-color: rgba(255, 255, 255, 0.2); /* dark:border-white/20 */
+}
+
+.ProseMirror tbody tr:first-child {
+  background-color: rgba(236, 239, 244, 0.5);
+  /* font-weight: bold; */
 }
 
 .ProseMirror table td,
@@ -703,6 +655,36 @@ blockquote {
 .amap-icon img{
     width: 25px;
     height: 34px;
+}
+
+.custom-content-marker {
+    position: relative;
+    width: 25px;
+    height: 34px;
+}
+
+.custom-content-marker img {
+    width: 100%;
+    height: 100%;
+}
+
+.custom-content-marker .close-btn {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    width: 15px;
+    height: 15px;
+    font-size: 12px;
+    background: #c0c0c000;
+    border-radius: 50%;
+    color: #fff;
+    text-align: center;
+    line-height: 15px;
+    box-shadow: -1px 1px 1px rgba(10, 10, 10, .2);
+}
+
+.custom-content-marker .close-btn:hover{
+    background: #666;
 }
 
 .amap-marker-label{

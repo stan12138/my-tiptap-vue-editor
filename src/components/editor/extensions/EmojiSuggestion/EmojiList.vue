@@ -96,7 +96,7 @@
     position: relative;
     border-radius: 0.5rem;
     background: #FFF;
-    color: rgba(0, 0, 0, 0.8);
+    color: rgba(109, 108, 108, 0.8);
     overflow: hidden;
     font-size: 0.9rem;
     box-shadow:
@@ -116,7 +116,7 @@
     padding: 0.2rem 0.4rem;
   
     &.is-selected {
-      border-color: #000;
+      border-color: #a3a3a3;
     }
   
     img {
